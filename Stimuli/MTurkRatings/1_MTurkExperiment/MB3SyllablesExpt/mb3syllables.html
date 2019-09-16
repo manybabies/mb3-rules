@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Rate syllables</title>
+  <meta charset="utf-8">
+  <script src="plugins/jspsych.js"></script>
+  <script src="./plugins/jspsych-html-keyboard-response.js"></script>
+  <script src="./plugins/jspsych-audio-keyboard-response.js"></script>
+  <script src="./plugins/jspsych-external-html.js"></script>
+  <script src="./plugins/jspsych-survey-text.js"></script>
+  <script src="./plugins/jspsych-instructions.js"></script>
+  <script src="./plugins/jspsych-survey-multi-select.js"></script>
+  <script src="./plugins/jquery.min.js"></script>
+  <script src="./plugins/mmturkey.js"></script>
+  <script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
+
+  <link href="./css/jspsych.css" rel="stylesheet" type="text/css"></link>
+</head>
+<body>
+  <script type="text/javascript">
+  (function(){
+    var ut_id = "87faf8ccd545c22d81fca3bfff4f3aa4";
+    if (UTWorkerLimitReached(ut_id)) {
+        document.getElementById('mturk_form').style.display = 'none';
+        document.getElementsByTagName('body')[0].innerHTML = "You have already completed the maximum number of HITs allowed by this requester. Please click 'Return HIT' to avoid any impact on your approval rating.";
+    }
+  })();
+  </script>
+
+</body>
+<script>
+//   Original jquery got on May 31, 2019 from "https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"
+var timenum = Date.now();
+var turkInfo = jsPsych.turk.turkInfo();
+$.getJSON('https://json.geoiplookup.io/api?callback=?', function(data) {
+  //console.log(JSON.stringify(data, null, 2));
+  jsPsych.data.addProperties({ IP: data.ip, country_code: data.country_code });
+});
+if(turkInfo==null) {
+  var subjid = 'SS' + timenum;
+} else {
+  var subjid = 'MT-' + turkInfo.workerId;
+}
+
+jsPsych.data.addProperties({ subject: subjid });
+
+var currsyl = "";
+var dumtrialnum = 0;
+
+var audio = [
+  'snd/letter.wav',
+  'snd/fa.wav',
+  'snd/fe.wav',
+  'snd/fu.wav',
+  'snd/ka.wav',
+  'snd/ke.wav',
+  'snd/ku.wav',
+  'snd/la.wav',
+  'snd/li.wav',
+  'snd/lo.wav',
+  'snd/ma.wav',
+  'snd/me2_0.wav',
+  'snd/mu1_0.wav',
+  'snd/ni.wav',
+  'snd/no.wav',
+  'snd/pa2_0.wav',
+  'snd/pe2_1.wav',
+  'snd/pu3_1.wav',
+  'snd/si1_0.wav',
+  'snd/so2_0.wav',
+  'snd/ta2_1.wav',
+  'snd/ti.wav',
+  'snd/to.wav'
+];
+
+
+var syllable_list = [
+  {snd01: 'snd/fa.wav'},
+  {snd01: 'snd/fe.wav'},
+  {snd01: 'snd/fu.wav'},
+  {snd01: 'snd/ka.wav'},
+  {snd01: 'snd/ke.wav'},
+  {snd01: 'snd/ku.wav'},
+  {snd01: 'snd/la.wav'},
+  {snd01: 'snd/li.wav'},
+  {snd01: 'snd/lo.wav'},
+  {snd01: 'snd/ma.wav'},
+  {snd01: 'snd/me2_0.wav'},
+  {snd01: 'snd/mu1_0.wav'},
+  {snd01: 'snd/ni.wav'},
+  {snd01: 'snd/no.wav'},
+  {snd01: 'snd/pa2_0.wav'},
+  {snd01: 'snd/pe2_1.wav'},
+  {snd01: 'snd/pu3_1.wav'},
+  {snd01: 'snd/si1_0.wav'},
+  {snd01: 'snd/so2_0.wav'},
+  {snd01: 'snd/ta2_1.wav'},
+  {snd01: 'snd/ti.wav'},
+  {snd01: 'snd/to.wav'}
+];
+var totaltrials = syllable_list.length+4;
+var mytrialctr = 1;
+
+var timeline = [];
+
+var check_preview = function(elem) {
+  if(!turkInfo.previewMode && !turkInfo.outsideTurk) {
+    return true;
+  } else {
+    alert("You must accept the HIT to begin the experiment.");
+    return false;
+  }
+};
+
+
+var ad = {
+  type:'external-html',
+  url: "ad.html",
+  cont_btn: "start",
+  check_fn: check_preview,
+  force_refresh: true,
+  execute_script: true
+};
+timeline.push(ad);
+
+var instruct = {
+type: "instructions",
+pages: ["<div style='width: 46px; margin: 0 auto; text-align: center; background-color: #8C1516; padding: 10px 10px 10px 10px'>"+
+                "<img src='https://identity.stanford.edu/img/SU_New_BlockStree_WhiteRed_darkbgrd.png' height='46'  alt='Stanford University'></div>"+
+                "<center><p><strong>Stanford Language and Cognition Lab</strong></p></center>"+
+                "<p>In this experiment, you will hear short spoken syllables. Please make sure your speakers are on!"+
+                "You will be asked to type what you heard, and then rate how good an example it was of the syllable you heard. "+
+                "Click below to listen to an example of the kind of short syllables you will hear and check your audio:</p>"+
+                "<audio controls><source src='snd/yu_test.wav' type='audio/wav'> </audio>"+
+                "<p>You might hear a syllable that sounds like 'yu' or the English word 'you'. "+
+                "So for this example you might type out 'yu' or 'you'. Many or most syllables might not sound like English words at all, "+
+                "so just type whatever you hear. Then, you will be asked to judge the clarity of the sylable you heard, on a 1-7 scale. "+
+                "For this example, if you thought it was a very clear example of 'yu', you might choose to rate it a 6 or 7.</p> <p>The experiment takes about 7-9 minutes.</p>"+
+                "<p class='block-text' id='legal'>Legal information: By answering the following questions, you are participating in a study being performed by cognitive scientists in the Stanford Department of Psychology. If you have questions about this research, please contact George Kachergis at <a href='mailto://gkacherg@stanford.edu'>gkacherg@stanford.edu</a>. You must be at least 18 years old to participate. Your participation in this research is voluntary. You may decline to answer any or all of the following questions. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you.</p>"],
+        show_clickable_nav: true,
+        show_page_number: true,
+        post_trial_gap: 2000
+    }
+
+// myTimeline.push(consent);
+timeline.push(instruct);
+
+
+var catch_trial = {
+  type: "audio-keyboard-response"
+  stimulus: "Let's test your speakers: Please type the letter you hear.",
+  choices: jsPsych.ALL_KEYS,
+  data: {
+    stimulus_type: 'congruent',
+  },
+  on_finish: function(data){
+    if(data.key_press == 113 | data.key_press == 81) {// ASCII code for q or Q
+      data.correct = true; // can add property correct by modify data object directly
+    } else {
+      data.correct = false;
+      // indicate they need to return the HIT
+      jsPsych.endExperiment('Incorrect response: Your speakers are not working, but are needed for this HIT. Please return the HIT. You cannot participate in this experiment. Thank you!');
+    }
+  }
+}
+timeline.push(catch_trial);
+
+
+var language_options1 = ["English", "French", "Dutch", "Spanish", "Catalan", "Hungarian", "German", "Italian", "Portuguese", "Japanese", "Other"];
+var language_options2 = ["None", "English", "French", "Dutch", "Spanish", "Catalan", "Hungarian", "German", "Italian", "Portuguese", "Japanese", "Other"];
+var language_select_block = {
+    type: 'survey-multi-select',
+    questions: [{prompt: "Language(s) that you are native or very proficient in:", options: language_options1}],
+    on_finish: function() {
+      jsPsych.setProgressBar(mytrialctr/totaltrials);
+      mytrialctr +=1;
+    }
+};
+timeline.push(language_select_block);
+
+
+var instructions = {
+  type: "html-keyboard-response",
+  stimulus: "<p>In each of the following trials, you will hear one syllable.</p><p>After you have heard the syllable, please indicate the <strong>identity</strong> of the perceived syllable,i.e., which syllable you think you heard,</p><p>You will then hear the syllable again once.</p><p>Then, please indicate how <strong>prototypical</strong> is the syllable of the pereived identity on a scale from 1 to 7</p><p></p><p><mark>Press any key to begin.</mark></p>",
+  on_finish: function() {
+    jsPsych.setProgressBar(mytrialctr/totaltrials);
+    mytrialctr +=1;
+  }
+};
+timeline.push(instructions);
+
+
+var syllable_instructions = {
+  type: "html-keyboard-response",
+  stimulus: "<p>next syllable</p>",
+  choices: jsPsych.NO_KEYS,
+  trial_duration: 500,
+  on_start: function(){
+    console.log(mytrialctr);
+    jsPsych.setProgressBar(mytrialctr/totaltrials);
+    mytrialctr += 1;
+  }
+};
+
+var syllable_tmplt01a = {
+  type: "audio-keyboard-response",
+  stimulus: jsPsych.timelineVariable('snd01'),
+  trial_ends_after_audio: true,
+  choices: jsPsych.NO_KEYS,
+  post_trial_gap: 500
+};
+
+var syllable_tmplt01b = {
+  type: "audio-keyboard-response",
+  stimulus: jsPsych.timelineVariable('snd01'),
+  trial_ends_after_audio: true,
+  choices: jsPsych.NO_KEYS
+};
+var post_syll_pause = {
+  type: "html-keyboard-response",
+  stimulus: "<p><strong>r</strong> to repeat,<br> <strong>any other</strong> to continue</p>"
+};
+var loop_node = {
+    timeline: [syllable_tmplt01b, post_syll_pause],
+    loop_function: function(data){
+      console.log(data.values()[0].key_press)
+        if((jsPsych.pluginAPI.convertKeyCharacterToKeyCode('r') == data.values()[1].key_press)){
+//          if(data.values()[0].key_press!=null){
+            return true;
+        } else {
+            return false;
+        }
+    }
+};
+
+var syllable_tmplt02 = {
+  type: 'survey-text',
+  questions: [{prompt: "What syllable was that?"}],
+  on_finish: function(syllable_tmplt02) {
+    var numtrials = jsPsych.data.get().select('responses').count();
+    var resp = jsPsych.data.get().select('responses').values[numtrials-1];
+    currsyl = JSON.parse(resp).Q0;
+    //console.log(currsyl);
+    return currsyl;
+  }
+};
+
+var syllable_tmplt03 = {
+  type: "audio-keyboard-response",
+  stimulus: jsPsych.timelineVariable('snd01'),
+//  prompt: function(){ return "How good an example of ["+currsyl+"] is this syllable, on a scale from 1(poor) to 7(great)";},
+  prompt: function(){return "<p>You say <strong>["+currsyl+"] </strong></p><p> How good an example is this syllable?</p><p>1..........2..........3..........4..........5..........6..........7</p><p>(Poor example) &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp (Great example)</p>";},
+  choices: ['1','2','3','4','5','6','7'],
+  data: {
+    'stim_type': 'typicality'
+  },
+  post_trial_gap: 500
+};
+// 'Press a number 1-7 to indicate how typical this sound is.'
+
+
+var syllable_block = {
+  timeline: [syllable_instructions, syllable_tmplt01a, loop_node, syllable_tmplt02, syllable_tmplt03],
+  timeline_variables: syllable_list,
+  randomize_order: true
+};
+timeline.push(syllable_block);
+
+
+/////// Prepare data for saving
+/*function saveData(name, data){
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'write_data.php'); // 'write_data.php' is the path to the php file described above.
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.send(JSON.stringify({filename: subjid, filedata: data}));
+}
+*/
+
+function saveData(filename, filedata){
+  $.post("../../../cgi-bin/write_data.php",{
+    filename:filename,
+    filedata:filedata
+  },function(response,status){ // Required Callback Function
+    //"response" receives - whatever written in echo of above PHP script.
+    //alert("*----Data stored!----*");
+  });
+};
+
+
+var outro = {
+  type: "html-keyboard-response",
+  stimulus: "<p><strong>Thanks! </strong></p><p>Press any key to end. You can close this window.</p>",
+  on_start: function() {
+    jsPsych.setProgressBar(1);
+    saveData(subjid, jsPsych.data.get().csv());
+    setTimeout(function() {
+      turk.submit(jsPsych.data.get().ignore('internal_node_id').ignore('external-html').json());
+    }, 5000);
+  }
+};
+timeline.push(outro);
+
+
+/*  GET STARTED  */
+jsPsych.init({
+  preload_audio: audio,
+  timeline: timeline,
+  show_progress_bar: true,
+  auto_update_progress_bar: false
+});
+
+
+</script>
+</html>
