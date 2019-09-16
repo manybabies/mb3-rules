@@ -1,0 +1,2 @@
+# mb3-rules: Raw participant data
+Participant data was examined for inconsistencies. CulledSs contains Ss who were removed from analysis primarily because their responses to writing down the perceived syllables were meaningless ("Vector Math") or seemed highly unlikely (responding "ba" to syllables as diverse as "ka" and "ni").
