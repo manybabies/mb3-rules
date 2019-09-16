@@ -8,3 +8,5 @@ pu.wav = pu3_1.wav
 si.wav = si1_0.wav
 so.wav = so2_0.wav
 ta.wav = ta2_1.wav
+
+The csv file contains wav-wise values for duration(ms), intensity(dB), and mean pitch(Hz)
