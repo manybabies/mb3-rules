@@ -1,0 +1,152 @@
+---
+title: "MB3 Pilot Analysis"
+author: "George"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(lme4)
+require(tidyverse)
+require(here)
+require(kableExtra)
+require(sjPlot)
+
+# for Bayesian regression
+require(brms)
+require(ggmcmc)
+require(tidybayes)
+require(ggdist)
+require(modelr)
+```
+
+## Load Data
+
+Load pilot data (from Julien Mayor's lab).
+
+```{r load-data}
+d1 <- read_csv(here("pilot/data/first_session_babies.csv")) %>%
+  rename(sd_LT_incongruent_trials = sd_LT_congruent_trials_1) 
+d2 <- read_csv(here("pilot/data/second_session_babies.csv")) %>%
+  rename(sd_LT_incongruent_trials = sd_LT_congruent_trials_1,
+         looking_time = `looking time`) 
+
+cdat <- bind_rows(d1, d2) %>%
+  filter(!is.na(id)) %>%
+  mutate(labID = 1)
+```
+
+Loaded data from `r length(unique(cdat$id))` participants.
+Their age distribution is shown below.
+
+```{r}
+cdat %>% group_by(id, age_months) %>% 
+  summarise(n=n()) %>%
+  group_by(age_months) %>%
+  summarise(Nch=n()) %>% kable()
+```
+
+
+## Plot
+
+
+
+```{r, fig.width=6, fig.height=4.5, caption="Log(looking time) by trial type and trial number with a simulated main effect (size=.3) of trial type, and bootstrapped 95% confidence intervals."}
+# test data
+dat <- cdat %>% select(1:14) # remaining columns are averages and notes
+
+fam_dat <- dat %>% filter(is.na(test_trial)) %>% 
+  select(-test_trial, -test_trial_audio, -test_trial_audio_length_ms, 
+         -test_trial_type, -test_version)
+
+test_dat <- dat %>% filter(!is.na(test_trial)) %>% 
+  select(-fam_trial_audio, -fam_version) %>%
+  separate(test_trial_type, sep='_', 
+           into = c("test_trial_type_ch", "test_trial_type_num")) %>%
+  mutate(trial_type = ifelse(test_trial_type_ch == fam_condition, "same", "different"),
+         log_looking_time = log(looking_time))
+
+dag <- test_dat %>% group_by(id, fam_condition, age_months, trial_type) %>%
+  summarise(looking_time = mean(log_looking_time)) %>% 
+  group_by(trial_type, age_months) %>%
+  tidyboot::tidyboot_mean(looking_time) # quite slow..
+
+pos = position_dodge(width=.2)
+ggplot(dag, aes(x=age_months, y=mean, group=trial_type, color=trial_type)) + 
+  geom_point(aes(y=mean, x=age_months), pos=pos) + 
+  ylab("log(looking time)") + xlab("Age (months)") + 
+  geom_linerange(aes(ymin=ci_lower, ymax=ci_upper), pos=pos) + 
+  theme_bw() + geom_smooth(method="lm")
+```
+
+
+## Regression
+
+Preregistered analysis, but without per-lab random effects and procedure fixed effects: 
+Infants' log(looking time) (DV) ~ 1 + familiarization order (ABB vs ABA) * trial_type + age * trial_type (same rule vs different rule at test) + trial_num * trial_type + (trial_num*trial_type | subject) 
+
+
+```{r}
+
+m1 <- lmer(log_looking_time ~ 1 + 
+             fam_condition * trial_type +
+             age_months * trial_type +
+             trial * trial_type + (trial * trial_type | id), data=test_dat)
+# singular, pruning random effects
+
+m2 <- lmer(log_looking_time ~ 1 + 
+             fam_condition * trial_type +
+             age_months * trial_type +
+             trial * trial_type + (1 | id), data=test_dat)
+tab_model(m2)
+```
+
+```{r}
+plot_model(m2, sort.est = T) + theme_bw()
+```
+
+
+## Bayesian Regression
+
+```{r, message=F, warning=F, cache=T}
+bm1 <- brm(log_looking_time ~ 1 + 
+             fam_condition * trial_type +
+             age_months * trial_type +
+             trial * trial_type + (1 | id), 
+           data = test_dat, 
+           warmup = 1000, iter = 2000, chains = 4, 
+           inits = "random", cores = 4, seed=42) 
+
+summary(bm1)
+```
+
+```{r, echo=F, eval=F}
+get_variables(bm1)
+bdat <- ggs(bm1)
+
+bm1 %>% 
+  spread_draws(b_Intercept, b_fam_conditionABB, b_trial_typesame, b_age_months, b_trial 
+              b_fam_conditionABB:trial_typesame, b_trial_typesame:age_months,
+              b_trial_typesame:trial) %>%
+  mutate(mean = b_Intercept + b_fam_conditionABB * b_trial_typesame +
+           b_age_months * b_trial_typesame + 
+           b_trial * b_trial_typesame) %>%
+  ggplot(aes(y = fam_condition, x = mean)) +
+  stat_halfeye()
+```
+
+
+Generate posterior predictive values.
+
+```{r}
+# posterior predictive
+test_dat %>%
+  data_grid(id, fam_condition, trial_type, age_months, trial) %>%
+  add_fitted_draws(bm1) %>%
+  ggplot(aes(x = .value, y = trial_type)) +
+  facet_grid(. ~ fam_condition) +
+  stat_pointinterval(.width = c(.66, .95)) + 
+  theme_bw()
+```
+
