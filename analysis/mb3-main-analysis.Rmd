@@ -1,0 +1,32 @@
+---
+title: "MB3 Data validation"
+author: "tbd"
+date: "5/16/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data validation
+
+The goal here is to run the models necessary for testing the hypotheses. 
+
+Input: data.frames that result from pre-processing, format needs to be defined
+
+Output:  data summaries & tables, data visualisations, table with results from hypothesis tests
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

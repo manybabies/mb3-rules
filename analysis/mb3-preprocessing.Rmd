@@ -1,0 +1,32 @@
+---
+title: "MB3 Data validation"
+author: "tbd"
+date: "5/16/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data validation
+
+The goal here is to include/exclude data based on inclusion criteria and deliver a data-structure (data.frame most likely) that can be used for the main analyses.  
+
+Input: participant level data files (ie trials) & lab level data files (participant information) which have been validated in the previous step
+
+Output: data structures as input for the main analyses. 
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
