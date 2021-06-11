@@ -78,6 +78,7 @@ test_dat <- dat %>% filter(!is.na(test_trial)) %>%
   mutate(trial_type = ifelse(test_trial_type_ch == fam_condition, "same", "different"),
          log_looking_time = log(looking_time),
          age_sc = scale(age_months, center=T, scale=T),
+         trial = trial - 1, # was 2-13; now 1-12
          trial_sc = scale(trial, center=T, scale=T))
 ```
 
@@ -86,23 +87,21 @@ We carried out the preregistered regression, but without per-lab random effects 
 Thus, the mixed-effects linear regression predicted infants' log(looking time) the following fixed effects: familiarized rule (ABB vs. ABA), test trial type (same or different as familiarized rule), age (in months) and trial number (1-12), as well as 2-way interactions of trial type and each of 1) familiarized rule, 2) age, and 3) trial number.
 The model's random effects structure included per-subject intercepts with slopes by test trial number and type.
 The R syntax for the complete model was thus: log(looking time) ~ 1 + familiarization order * trial_type + age * trial_type + trial_num * trial_type + (trial_num*trial_type | subject)).
-However, this model's fit was singular, indicating that the random effects structure is too complex for the dataset.
+However, this model's fit was singular (even when trial and age were centered and scaled), indicating that the random effects structure is too complex for the dataset. 
 Thus, we pruned the random effects structure following standard procedures: removing either random slopes by trial number or by trial type allowed the model to converge. 
-[which do we want to drop?]
-Table 1 shows the effects from the model with 
+The model with slopes varying by trial number achieved better fit (AIC=409.6 vs. AIC=413.9 with slopes by trial type).
+Table 1 shows the regression coefficients from the preferred model, and Figure 1 shows these coefficients plotted with 95% confidence intervals.
+Only the effect of trial was significant ($\beta = -0.04$, $p=.01$), showing that looking time declined across trials.
+There was a marginal interaction of trial type and trial number ($\beta = 0.04$, $p=.05$), suggesting that participants' looking time may not decline across trials on trials exemplifying the same rule they were familiarized with during training.
+Although age and trial type did not show any significant effects or interaction in this small pilot, Figure 2 shows the log(looking time) as a function of these factors, as we may expect some effects in the full sample.
 
 ```{r, lmer-regression}
 m1 <- lmer(log_looking_time ~ 1 + 
              fam_condition * trial_type +
              age_months * trial_type +
              trial * trial_type + (trial * trial_type | id), data=test_dat)
-# singular, random effects need pruning
-
-# 
-m1 <- lmer(log_looking_time ~ 1 + 
-             fam_condition * trial_type +
-             age_sc * trial_type +
-             trial_sc * trial_type + (trial * trial_type | id), data=test_dat)
+# isSingular(m1)
+# singular, random effects need pruning (changing to trial_sc / age_sc did not help)
 
 # try pruning either trial number or trial type (both converge)
 m2 <- lmer(log_looking_time ~ 1 + 
@@ -117,17 +116,20 @@ m3 <- lmer(log_looking_time ~ 1 +
              trial * trial_type + (trial_type | id), data=test_dat)
 #tab_model(m3) # trial -.04** fam_cond +.33 p=.08
 
-mod_out <- summary(m3)
+# anova(m2, m3) # m2 is slightly preferred
+
+mod_out <- summary(m2)
 
 papaja::apa_table(mod_out$coefficients, 
                   caption="Regression coefficients.")
 ```
 
-```{r, fig.width=4.8, fig.height=3.5, caption="Log(looking time) by trial type and trial number with a simulated main effect (size=.3) of trial type, and bootstrapped 95% confidence intervals."}
-plot_model(m2, sort.est = T) + theme_bw()
+```{r, fig.width=4.8, fig.height=3.5, fig.cap="Regression coefficients with 95% confidence intervals."}
+plot_model(m2, sort.est = T) + theme_bw() + ggtitle("")  
+#  geom_vline(aes(xintercept=0), linetype="dashed")
 ```
 
-```{r log-looking-time-by-age, fig.width=4.5, fig.height=4, caption="Log(looking time) by trial type and trial number with a simulated main effect (size=.3) of trial type, and bootstrapped 95% confidence intervals."}
+```{r log-looking-time-by-age, fig.width=4.5, fig.height=4, fig.cap="Log(looking time) by trial type and age, and bootstrapped 95% confidence intervals."}
 dag <- test_dat %>% group_by(id, fam_condition, age_months, trial_type) %>%
   summarise(looking_time = mean(log_looking_time)) %>% 
   group_by(trial_type, age_months) %>%
@@ -145,9 +147,9 @@ ggplot(dag, aes(x=age_months, y=mean, group=trial_type, color=trial_type)) +
 
 
 
-## Bayesian Regression
+<!-- ## Bayesian Regression -->
 
-```{r, message=F, warning=F, cache=T}
+```{r, message=F, warning=F, eval=F, include=F}
 bm1 <- brm(log_looking_time ~ 1 + 
              fam_condition * trial_type +
              age_months * trial_type +
@@ -159,7 +161,7 @@ bm1 <- brm(log_looking_time ~ 1 +
 summary(bm1)
 ```
 
-```{r, echo=F, eval=F}
+```{r, echo=F, eval=F, include=F}
 get_variables(bm1)
 bdat <- ggs(bm1)
 
@@ -175,9 +177,9 @@ bm1 %>%
 ```
 
 
-Generate posterior predictive values.
+<!-- Generate posterior predictive values. -->
 
-```{r, include=F}
+```{r, include=F, eval=F}
 # posterior predictive
 test_dat %>%
   data_grid(id, fam_condition, trial_type, age_months, trial) %>%
