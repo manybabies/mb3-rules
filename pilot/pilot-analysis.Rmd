@@ -41,9 +41,9 @@ cdat <- bind_rows(d1, d2) %>%
   mutate(labID = 1)
 ```
 
-Participants were `r length(unique(cdat$id))` children 8-12 months of age recruited from...
+Participants were `r length(unique(cdat$id))` children 8-12 months of age (10 females) recruited from (BLINDED FOR SUBMISSION)
 (7 8-month-olds, 2 9-month-olds, 2 10-month-olds, 4 11-month-olds, and 4 12-month-olds).
-[An addition X participants were excluded due to failure to complete...]
+
 
 ```{r, include=F}
 cdat %>% group_by(id, age_months) %>% 
@@ -54,12 +54,11 @@ cdat %>% group_by(id, age_months) %>%
 
 ## Materials and Design
 
-
-[include anything here?]
+The piloting phase adopted the same material and design as planned for the main study (see full description in the main text).
 
 ## Procedure
 
-[include anything here?]
+The piloting phase adopted the same procedure as planned for the main study (see full description in the main text).
 
 ## Results
 
