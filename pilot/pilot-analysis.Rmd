@@ -24,8 +24,7 @@ require(ggdist)
 require(modelr)
 ```
 
-A pilot study was conducted by one laboratory in March, 2021 to verify the feasibility of the experiment's design, and to test the planned procedures.
-Given the small size of the pilot, we do not expect to find significant effects, but we nonetheless also carried out the full planned analysis.
+A pilot study was conducted by one laboratory in March, 2021 to verify the feasibility of the experiment's design, to test the planned procedures, and to test-run the planned analysis. Given the small size of the pilot, we do not expect to find significant effects, but we nonetheless also carried out and report the full planned analysis.
 
 ## Participants
 
@@ -82,11 +81,25 @@ test_dat <- dat %>% filter(!is.na(test_trial)) %>%
 ```
 
 
-We carried out the preregistered regression, but without per-lab random effects and procedure fixed effects since these variables have no variation in our sample. 
-Thus, the mixed-effects linear regression predicted infants' log(looking time) the following fixed effects: familiarized rule (ABB vs. ABA), test trial type (same or different as familiarized rule), age (in months) and trial number (1-12), as well as 2-way interactions of trial type and each of 1) familiarized rule, 2) age, and 3) trial number.
+We carried out the preregistered regression, leaving out the variables that had no variation in our sample: the per-lab random effects and experimental procedure fixed effects. Thus, the mixed-effects linear regression predicted infants' log(looking time) by the following fixed effects: 
+
+1. familiarized rule (ABB vs. ABA).
+
+2. test trial type (same or different as familiarized rule).
+
+3. age (in months) and trial number (1-12).
+
+4. the 2-way interaction of trial type and familiarized rule.
+
+5. the 2-way interaction of trial type and age.
+
+6. the 2-way interaction of trial type and trial number.
+
 The model's random effects structure included per-subject intercepts with slopes by test trial number and type.
+
 The R syntax for the complete model was thus: log(looking time) ~ 1 + familiarization order * trial_type + age * trial_type + trial_num * trial_type + (trial_num*trial_type | subject)).
-However, this model's fit was singular (even when trial and age were centered and scaled), indicating that the random effects structure is too complex for the dataset. 
+
+This model's fit was singular (even when trial and age were centered and scaled), indicating that the random effects structure is too complex for the dataset. 
 Thus, we pruned the random effects structure following standard procedures: removing either random slopes by trial number or by trial type allowed the model to converge. 
 The model with slopes varying by trial number achieved better fit (AIC=409.6 vs. AIC=413.9 with slopes by trial type).
 Table 1 shows the regression coefficients from the preferred model, and Figure 1 shows these coefficients plotted with 95% confidence intervals.
