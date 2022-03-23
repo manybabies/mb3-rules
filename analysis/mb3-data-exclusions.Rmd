@@ -1,0 +1,32 @@
+---
+title: "MB3 Data Exclusions"
+author: "tbd"
+date: "5/16/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data Exclusions
+
+The goal of this file is to implement all subject- and trial-level exclusions.
+
+Input: validated participant level data files (ie trials) & lab level data files (participant information)
+
+Output: participant and trial data files in which all exclusions have been implemented
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
