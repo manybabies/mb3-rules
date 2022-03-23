@@ -26,17 +26,29 @@ Output:  data summaries & tables, data visualisations, table with results from h
 ```{r full model}
 
 full_model <- lmer(log_looking_time ~ 1 +
-     familiarization_rule*trial_type +
+     familiarization_rule * trial_type +
      age * trial_type +
      experimental_method * trial_type +
      multilingual_exposure * trial_type +
-     trial_num*trial_type +
-     trial_num*age +
-     repetition*trial_type +
-     (trial_num*trial_type | subject) +
+     trial_num * trial_type +
+     trial_num * age +
+     repetition * trial_type +
+     (trial_num * trial_type | subject) +
      (trial_type + test_order | lab),
      data = main_df)
+     
+```
+## Pruning order:
 
+* Change Subject level random slope from interaction to two main effects: trial_type and trial_num
+* Lab level slope trial_type
+* Lab level slope test_order
+* Subject level slope trial_num
+* Subject level slope trial_type
+* Lab intercept
+* Subject intercept
+
+```{r pruning}
 
 ```
 
