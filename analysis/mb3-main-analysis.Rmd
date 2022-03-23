@@ -17,8 +17,27 @@ Input: data.frames that result from pre-processing, format needs to be defined
 
 Output:  data summaries & tables, data visualisations, table with results from hypothesis tests
 
-```{r cars}
-summary(cars)
+```{r data validation}
+
+```
+
+## Full model specification
+
+```{r full model}
+
+full_model <- lmer(log_looking_time ~ 1 +
+     familiarization_rule*trial_type +
+     age * trial_type +
+     experimental_method * trial_type +
+     multilingual_exposure * trial_type +
+     trial_num*trial_type +
+     trial_num*age +
+     repetition*trial_type +
+     (trial_num*trial_type | subject) +
+     (trial_type + test_order | lab),
+     data = main_df)
+
+
 ```
 
 ## Including Plots
