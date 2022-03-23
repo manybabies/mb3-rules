@@ -11,11 +11,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Data validation
 
-The goal here is to check that data is valid, eg by plotting, by computing summary statistics, by checking the range of values for certain variables et cetera. 
+The goal here is to check that data is valid, eg by plotting, by computing summary statistics, by checking the range of values for certain variables et cetera. We will also identify points that need to be followed-up with personnel from the submitting lab.
 
 Input: participant level data files (ie trials) & lab level data files (participant information)
 
-Output: list of valid/invalid data identifiers (lab id + participant id)
+Output: list of valid/invalid data identifiers (lab id + participant id), list of subject-level exclusions to be implemented in the exclusion code (see mb3-data-exclusions.Rmd)
 
 ```{r cars}
 summary(cars)
