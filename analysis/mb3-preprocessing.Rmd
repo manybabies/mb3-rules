@@ -1,5 +1,5 @@
 ---
-title: "MB3 Data validation"
+title: "MB3 Preprocessing"
 author: "tbd"
 date: "5/16/2021"
 output: html_document
@@ -9,13 +9,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Data validation
+## Preprocessing
 
-The goal here is to include/exclude data based on inclusion criteria and deliver a data-structure (data.frame most likely) that can be used for the main analyses.  
-
-Input: participant level data files (ie trials) & lab level data files (participant information) which have been validated in the previous step
-
-Output: data structures as input for the main analyses. 
+XXX
 
 ```{r cars}
 summary(cars)
