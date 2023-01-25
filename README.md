@@ -3,7 +3,7 @@ manybabies3 - replication of Marcus, Vijayan, Bandi Rao, &amp; Vishton, 1999: Ru
 
 Note: This a GH repository 'home' for public materials. During active data collection/analysis, team members will work in a separate, private repository as a precaution against accidentally committing identifiable/sensitive information from raw lab data files.
 
-For instructions on how to join the MB3 data/analysis team's work, please [TBD action].
+For instructions on how to join the MB3 data/analysis team's work, please post a Slack message on the `mb3-analysis` channel.
 
 Quick links:
 
